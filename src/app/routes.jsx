@@ -33,3 +33,4 @@ const router = createBrowserRouter([
     },]);
 // Start with feature-based routing
 export default router;
+fatal: Authentication failed
