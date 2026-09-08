@@ -18,8 +18,8 @@ const router = createBrowserRouter([
   },
   {
     // element: <ProtectedRoute />,
-    elemnt: <AppLayout />,
-    children: [{ element: <AppLayout />,
+    element: <AppLayout />,
+    // children: [{ element: <AppLayout />,
         children:[
           {path: "/dashboard",element: <Dashboard />},
           {path: "/accounts", element: <Accounts />},
@@ -29,8 +29,7 @@ const router = createBrowserRouter([
           {path:"/beneficiaries", element: <Beneficiaries/>},
           {path:"/cards", element: <Cards />}
         ]
-     }]
+    //  }] 
     },]);
 // Start with feature-based routing
 export default router;
-fatal: Authentication failed
