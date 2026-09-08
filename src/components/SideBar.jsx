@@ -27,10 +27,6 @@ function Sidebar(){
                 </NavLink>
             </nav>
             <div className="sidebar-footer">
-                <NavLink to="/settings">
-                    Settings
-                </NavLink>
-
                 <button>
                     Logout
                 </button>
