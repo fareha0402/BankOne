@@ -27,7 +27,11 @@ function Sidebar(){
                 </NavLink>
             </nav>
             <div className="sidebar-footer">
-                <button>
+                <button onClick={() => {
+                    localStorage.removeItem('user');
+                    localStorage.removeItem('token');
+                    window.location.href = '/login';
+                }}>
                     Logout
                 </button>
             </div>
