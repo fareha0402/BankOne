@@ -73,7 +73,7 @@ function Login(){
                 <button type="submit" disabled={loading}>
                     {loading ? 'Loading...' : 'Login'}
                 </button>
-                {errors.form && <span className="error">{errors.form}</span>}
+                {errors.form && <span className="error">{errors.form}</span>} 
             </form>
         </div>
     )
