@@ -1,4 +1,4 @@
-interface BankAccount {
+export interface BankAccount {
     id: string;
     accountNumber: string;
     accountType: 'savings' | 'checking' | 'business';
@@ -6,5 +6,5 @@ interface BankAccount {
     currency: string;
     createdAt: Date;
     updatedAt: Date;
-    status: 'active' | 'inactive' | 'closed';
+    status: 'Active' | 'Inactive' | 'Closed';
 }

@@ -1,4 +1,6 @@
-let accountsData: BankAccount[] = [
+import { BankAccount } from './types';
+
+const accountsData: BankAccount[] = [
     {
         id: '1',
         accountNumber: '1234567890',
@@ -7,7 +9,7 @@ let accountsData: BankAccount[] = [
         currency: 'USD',
         createdAt: new Date(),
         updatedAt: new Date(),
-        status: 'active'
+        status: 'Active'
     },
     {
         id: '2',
@@ -17,7 +19,7 @@ let accountsData: BankAccount[] = [
         currency: 'USD',
         createdAt: new Date(),
         updatedAt: new Date(),
-        status: 'active'
+        status: 'Inactive'
     },
     {
         id: '3',
@@ -27,7 +29,7 @@ let accountsData: BankAccount[] = [
         currency: 'USD',
         createdAt: new Date(),
         updatedAt: new Date(),
-        status: 'active'
+        status: 'Active'
     }
 ]
 export default accountsData
