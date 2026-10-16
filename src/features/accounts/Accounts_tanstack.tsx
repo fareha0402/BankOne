@@ -2,13 +2,21 @@ import { useEffect, useState } from 'react';
 // import accountsData from './accountsData';
 import accountsService from './accountsService';
 import type { BankAccount } from './types';
+import { useQuery } from '@tanstack/react-query';
 
 // using tanstack query to fetch accounts data from the service and handle loading, error, and search functionality.
 function Accounts() {
     const [searchTerm, setSearchTerm] = useState('');
-    const [accounts, setAccounts] = useState<BankAccount[]>([]);
-    const [loading, setLoading] = useState(false);
-    const [error, setError] = useState<string | null>(null);
+    const {
+        data: accounts = [],
+        isPending,
+        isError,
+        error,
+    } = useQuery({
+        queryKey: ['accounts'],
+        queryFn: () => accountsService.getAccounts(),
+    });
+
 
     const normalizedSearch = searchTerm.trim().toLowerCase();
     const filteredAccounts = accounts.filter((account) => {
@@ -18,34 +26,7 @@ function Accounts() {
             account.balance.toString().includes(normalizedSearch)
         );
     });
-    useEffect(() => {
-        const controller = new AbortController();
-        const loadAccounts = async () => {
-            setError(null);
-            setLoading(true);
-            try {
-                const response = await accountsService.getAccounts(
-                    controller.signal
-                );
-                    setAccounts(response);
-            } catch (error) {
-                if(error instanceof Error && error.name === 'AbortError') {
-                    return;
-                }
-                setError('Failed to load accounts. Please try again later.');
-            } finally {
-                if(!controller.signal.aborted) {
-                    setLoading(false);
-            }
-        }
-        };
-
-        loadAccounts();
-
-        return () => {
-            controller.abort();
-        };
-    }, []);
+   
     return (
         <div>
             <h2>Accounts</h2>
@@ -66,13 +47,17 @@ function Accounts() {
                     </tr>
                 </thead>
                 <tbody>
-                    {loading ? (
+                    {isPending ? (
                         <tr>
                             <td colSpan={5}>Loading accounts...</td>
                         </tr>
-                    ) : error ? (
+                    ) : isError ? (
                         <tr>
-                            <td colSpan={5} style={{ color: 'red' }}>{error}</td>
+                            <td colSpan={5} style={{ color: 'red' }}>
+                                {error instanceof Error
+                                    ? error.message
+                                    : 'Failed to fetch accounts.'}</td>
+                            
                         </tr>
                     ) : filteredAccounts.length === 0 ? (
                         <tr>
