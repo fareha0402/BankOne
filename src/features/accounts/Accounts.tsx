@@ -24,7 +24,7 @@ function Accounts() {
             setLoading(true);
             try {
                 const response = await accountsService.getAccounts(
-                    controller.signal
+                    // controller.signal
                 );
                     setAccounts(response);
             } catch (error) {

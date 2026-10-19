@@ -1,3 +1,5 @@
+1.Accounts Page
+
 `useEffect` is used to synchronize a component with external systems, such as APIs. For example, in my Accounts page, I use it to fetch account data when the component mounts, and I specify dependencies to control when the effect runs again.
 
 The effect callback itself should not be async because an async function returns a Promise, but React expects the callback to return either nothing or a cleanup function. Instead, I define an async function inside the effect and invoke it. I also handle loading, error, and success states so the UI responds correctly to the API lifecycle.
@@ -27,3 +29,11 @@ For a simple API request, I can use `useEffect` with `AbortController` to manage
 For a larger application like BankOne, where account data may be shared across pages and needs refreshing after payments or other mutations, I would consider TanStack Query. It provides caching, query invalidation, loading and error states, and request cancellation through AbortSignal.
 
 I would choose based on the complexity of server-state management rather than using a library for every API call.
+
+Before	After
+useEffect triggers the request	useQuery triggers the request
+useState manages loading	isPending
+useState manages errors	isError and error
+Manual request cancellation	Query-managed cancellation support
+No built-in cache	Cache keyed by ['accounts']
+One important detail: TanStack Query supports cancellation through an AbortSignal supplied to queryFn, but the query function must pass that signal to the actual HTTP request for the network operation to be cancelled. Your mock service doesn't need cancellation yet.

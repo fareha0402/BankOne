@@ -12,6 +12,8 @@ function Accounts() {
         isPending,
         isError,
         error,
+        refetch,
+        isFetching,
     } = useQuery({
         queryKey: ['accounts'],
         queryFn: () => accountsService.getAccounts(),
@@ -56,8 +58,12 @@ function Accounts() {
                             <td colSpan={5} style={{ color: 'red' }}>
                                 {error instanceof Error
                                     ? error.message
-                                    : 'Failed to fetch accounts.'}</td>
-                            
+                                    : 'Failed to fetch accounts.'}
+                                    <button type="button" disabled={isFetching} onClick={() => refetch()}>
+                                        Retry
+                                    </button>
+                                    {isFetching && <span>Retrying...</span>}
+                                    </td>
                         </tr>
                     ) : filteredAccounts.length === 0 ? (
                         <tr>
