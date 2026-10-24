@@ -11,9 +11,10 @@ function Payments() {
   const [error, setError] = useState<string | null>(null);
   const queryClient = useQueryClient();
 
-  const { data: accounts,
-     isPending: isAccountsLoading,
-     isError: isAccountsError,
+  const {
+    data: accounts,
+    isPending: isAccountsLoading,
+    isError: isAccountsError,
   } = useQuery({
     queryKey: ["accounts"],
     queryFn: () => accountsService.getAccounts(),
@@ -43,19 +44,22 @@ function Payments() {
 
     onSuccess: async () => {
       setError(null);
+      setFromAccountId("");
+      setBeneficiaryName("");
+      setAmount("");
       await queryClient.invalidateQueries({
         queryKey: ["accounts"],
       });
     },
   });
   const submitPayment = async (e: FormEvent<HTMLFormElement>) => {
+    if (paymentMutation.isPending) return;
     e.preventDefault();
     if (!validateForm()) {
       return;
     }
-
+    
     // Implementation for submitting payment
-    console.log({ fromAccountId, beneficiaryName, amount });
     paymentMutation.mutate({
       fromAccountId,
       beneficiaryName: beneficiaryName.trim(),
@@ -72,21 +76,29 @@ function Payments() {
         )}
         <label>
           From Account:
+          {isAccountsLoading && <p>Loading accounts...</p>}
+          {isAccountsError && (
+            <p role="alert" style={{ color: "red" }}>
+              Error loading accounts. Please try again.
+            </p>
+          )}
           <select
             name="fromAccountId"
             value={fromAccountId}
+            disabled={isAccountsLoading || isAccountsError}
             onChange={(e) => {
               setFromAccountId(e.target.value);
               setError(null);
+              paymentMutation.reset(); // Reset mutation state when user changes input
             }}
             required
           >
             <option value="">Select an account</option>
-           {accounts?.map(((account) => (
-            <option key={account.accountNumber} value={account.accountNumber}>
-              {account.accountNumber} - {account.accountType}
-            </option>
-           )))}
+            {accounts?.map((account) => (
+              <option key={account.accountNumber} value={account.accountNumber}>
+                {account.accountNumber} - {account.accountType}
+              </option>
+            ))}
           </select>
         </label>
         <label>
@@ -98,6 +110,7 @@ function Payments() {
             onChange={(e) => {
               setBeneficiaryName(e.target.value);
               setError(null);
+              paymentMutation.reset(); // Reset mutation state when user changes input
             }}
             required
           />
@@ -109,27 +122,31 @@ function Payments() {
             name="amount"
             value={amount}
             onChange={(e) => {
-              setAmount(e.target.value); 
-              setError(null)
+              setAmount(e.target.value);
+              setError(null);
+              paymentMutation.reset(); // Reset mutation state when user changes input
             }}
             required
+            min="0.01"
+            step="0.01"
           />
         </label>
         {/* This improves the user experience by preventing repeated clicks while a request is in progress.
          A production payment system should also enforce idempotency on the backend to prevent duplicate transactions. */}
-        {paymentMutation.isPending ? (
-          <p>Processing payment...</p>
-        ) : (
-          <button type="submit">Submit Payment</button>
-        )}
+        <button type="submit" disabled={paymentMutation.isPending}>
+          {paymentMutation.isPending
+            ? "Processing payment..."
+            : "Submit Payment"}
+        </button>
         {paymentMutation.isError && (
           <p role="alert" style={{ color: "red" }}>
-            {(paymentMutation.error as Error).message ||
-              "Error submitting payment. Please try again."}
+            {paymentMutation.error instanceof Error
+              ? paymentMutation.error.message
+              : "Error submitting payment. Please try again."}
           </p>
         )}
         {paymentMutation.isSuccess && (
-          <p role="alert" style={{ color: "green" }}>
+          <p role="status" style={{ color: "green" }}>
             Payment submitted successfully! Transaction ID:{" "}
             {paymentMutation.data?.transactionId}
           </p>
