@@ -45,3 +45,107 @@ Small forms	Ideal	Works well
 Complex validation	More manual code	Easier to maintain
 Large enterprise forms	Can become cumbersome	Better suited
 BankOne right now	Start here	Add later
+
+
+Payements.tsx
+useRef
+
+how isSubmittingRef helps
+isSubmittingRef helps us prevent the same payment from being submitted twice before React has updated the UI.
+
+Let's understand this using your BankOne Payments feature.
+
+1. The problem without useRef
+Suppose the user double-clicks Submit very quickly.
+
+First click calls submitPayment().
+
+Payment request starts.
+
+React hasn't rendered the disabled button yet.
+
+Second click calls submitPayment() again.
+
+A second payment request may start.
+
+Your existing check:
+
+if (paymentMutation.isPending) return;
+
+is useful, but it reads the mutation state from the current render. It isn't a guaranteed synchronous lock between rapid events.
+
+2. How useRef solves this
+We create a ref:
+
+const isSubmittingRef = useRef(false);
+
+Think of it as a small lock stored inside your component.
+
+false = payment submission is allowed.
+
+true = payment submission is already in progress.
+
+Inside your handler, the logic will be:
+
+if (isSubmittingRef.current) return;
+
+isSubmittingRef.current = true;
+
+The important part is that changing .current happens synchronously.
+
+Visualize two rapid clicks
+
+First click
+
+Allowed
+Ref is false. Set it to true and start the request.
+
+Second click
+
+Blocked
+Ref is true. Return without starting another request.
+
+One request initiated
+3. Why not useState?
+useState
+
+useRef
+
+Updating schedules a re-render
+
+Updating doesn't trigger a re-render
+
+UI-related data
+
+Non-UI operational data
+
+State updates are applied through React's rendering process
+
+.current changes immediately
+
+Good for displaying loading status
+
+Good for synchronous locking
+
+In our case:
+
+paymentMutation.isPending controls the Processing button UI.
+
+isSubmittingRef.current provides the synchronous submission lock.
+
+They serve different purposes.
+
+4. What happens when the request finishes?
+We must release the lock regardless of success or failure.
+
+That's why JavaScript's finally is useful:
+
+try {
+  // Submit payment
+} finally {
+  isSubmittingRef.current = false;
+}
+
+If we don't reset it, the user cannot submit another payment.
+
+For a real banking system, the backend must additionally enforce idempotency. A frontend ref cannot guarantee exactly-once processing across multiple tabs, retries or network failures.

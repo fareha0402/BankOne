@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useRef, useState } from "react";
 import type { FormEvent } from "react";
 import paymentsService from "./paymentsService";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
@@ -10,6 +10,7 @@ function Payments() {
   const [amount, setAmount] = useState("");
   const [error, setError] = useState<string | null>(null);
   const queryClient = useQueryClient();
+  const isSubmittingRef = useRef(false);
 
   const {
     data: accounts,
@@ -53,18 +54,20 @@ function Payments() {
     },
   });
   const submitPayment = async (e: FormEvent<HTMLFormElement>) => {
-    if (paymentMutation.isPending) return;
     e.preventDefault();
-    if (!validateForm()) {
-      return;
+    if (isSubmittingRef.current || paymentMutation.isPending) return;
+    isSubmittingRef.current = true;
+    try {
+      if (!validateForm()) return;
+
+      paymentMutation.mutate({
+        fromAccountId,
+        beneficiaryName: beneficiaryName.trim(),
+        amount: Number(amount),
+      });
+    } finally {
+      isSubmittingRef.current = false;
     }
-    
-    // Implementation for submitting payment
-    paymentMutation.mutate({
-      fromAccountId,
-      beneficiaryName: beneficiaryName.trim(),
-      amount: Number(amount),
-    });
   };
   return (
     <div>
